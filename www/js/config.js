@@ -1,0 +1,1 @@
+angular.module('starter').constant('SERVER_IP', "http://localhost:8080");

@@ -1,6 +1,6 @@
 angular.module('starter.controllers', [])
 
-    .controller('AppCtrl', function ($rootScope,$scope, $ionicModal, $timeout, $localStorage,$http,$state) {
+    .controller('AppCtrl', function ($rootScope,$scope, $ionicModal, $timeout, $localStorage,$http,$state,SERVER_IP) {
         $scope.addNew=function(){
             $state.go('app.newthres');
         }
@@ -23,7 +23,7 @@ angular.module('starter.controllers', [])
                 }
                 $http({
                     method: 'POST',
-                    url: "http://localhost:8080/api/subscribers",
+                    url: SERVER_IP+"/api/subscribers",
                     data: {name: $scope.page.subscriber_name}
                 }).then(
                     function (res) {
@@ -45,7 +45,7 @@ angular.module('starter.controllers', [])
         if($localStorage.subscriber){
             $http({
                 method: 'GET',
-                url: "http://localhost:8080/api/subscribers/"+$localStorage.subscriber.name+"/validate"
+                url: SERVER_IP+"/api/subscribers/"+$localStorage.subscriber.name+"/validate"
             }).then(
                 function (res) {
                     if(res.data==true) {
@@ -67,7 +67,7 @@ angular.module('starter.controllers', [])
 
         function initsocket(){
             var stompClient;
-            var socket = new SockJS('http://localhost:8080/gs-guide-websocket');
+            var socket = new SockJS(SERVER_IP+'/gs-guide-websocket');
             stompClient = Stomp.over(socket);
             stompClient.connect({}, function (frame) {
                 console.log('socket js Connected: ' + frame);
@@ -95,12 +95,12 @@ angular.module('starter.controllers', [])
         })
 
     })
-    .controller('ThresholdsCtrl', function ($scope,$http,$localStorage,$state) {
+    .controller('ThresholdsCtrl', function ($scope,$http,$localStorage,$state,SERVER_IP) {
         $scope.$parent.showadd=true;
         $scope.thresholds = [];
         $http({
             method: 'GET',
-            url: "http://localhost:8080/api/subscribers/"+$localStorage.subscriber.name+"/thresholds",
+            url: SERVER_IP+"/api/subscribers/"+$localStorage.subscriber.name+"/thresholds",
         }).then(
             function(res) {
                $scope.thresholds=res.data;
@@ -122,7 +122,7 @@ angular.module('starter.controllers', [])
         $scope.thres=$stateParams.thres;
     })
 
-    .controller('NewThresholdCtrl', function ($scope, $http,$state,$localStorage) {
+    .controller('NewThresholdCtrl', function ($scope, $http,$state,$localStorage,SERVER_IP) {
         $scope.thres={};
         $scope.create=function(){
             if(isNaN($scope.thres.value)){
@@ -138,7 +138,7 @@ angular.module('starter.controllers', [])
 
             $http({
                 method: 'POST',
-                url: "http://localhost:8080/api/subscribers/"+$localStorage.subscriber.name+"/thresholds",
+                url: SERVER_IP+"/api/subscribers/"+$localStorage.subscriber.name+"/thresholds",
                 data: $scope.thres
             }).then(
                 function(res) {
