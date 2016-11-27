@@ -1,1 +1,1 @@
-angular.module('starter').constant('SERVER_IP', "http://localhost:8080");
+angular.module('starter').constant('SERVER_IP', "http://samsung-tyler.herokuapp.com/");
