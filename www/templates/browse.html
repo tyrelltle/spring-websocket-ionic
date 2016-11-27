@@ -1,9 +1,39 @@
+<style>
+  .circle{
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    height: 0;
+    padding: 50% 0;
+    border-radius: 50%;
+    /* Just making it pretty */
+    -webkit-box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.1);
+    text-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
+    background: #38a9e4;
+    color: white;
+    border: solid 5px;
+    font-family: Helvetica, Arial Black, sans;
+    font-size: 48px;
+    text-align: center;
+  }
+
+  .circle-wrapper{
+    padding-top: 20%;
+    padding-left: 10%;
+    padding-right: 10%;
+  }
+</style>
 <ion-view view-title="Monitoring">
   <ion-content>
     <h1>Temperature</h1>
-    <h4>{{page.current_temperature}}</h4>
-
-    <h1>Threshold</h1>
-    <h4>{{page.threshold_name}}</h4>
-  </ion-content>
+    <div class="circle-wrapper">
+      <div class="circle">
+        <span>{{page.current_temperature}}</span>
+      </div>
+    </div>
+    <h3 style="text-align: center"  ng-if="['$no_reached$','N/A'].indexOf(page.threshold_name)<0">
+      Reached: {{page.threshold_name}}
+    </h3>
+   </ion-content>
 </ion-view>
