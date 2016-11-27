@@ -4,9 +4,7 @@ angular.module('starter.controllers', [])
         $scope.addNew=function(){
             $state.go('app.newthres');
         }
-        if($localStorage.subscriber){
-            initsocket();
-        } else {
+        function requestNewUser() {
             $scope.page = {
                 subscriber_name: null
             }
@@ -42,6 +40,28 @@ angular.module('starter.controllers', [])
                     }
                 );
             };
+        }
+
+        if($localStorage.subscriber){
+            $http({
+                method: 'GET',
+                url: "http://localhost:8080/api/subscribers/"+$localStorage.subscriber.name+"/validate"
+            }).then(
+                function (res) {
+                    if(res.data==true) {
+                        initsocket();
+                    }else{
+                        requestNewUser();
+                    }
+                },
+                function (err) {
+                    console.log(err);
+                    alert(err.data.message);
+                }
+            );
+            initsocket();
+        } else {
+            requestNewUser();
 
         }
 
