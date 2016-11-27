@@ -1,11 +1,12 @@
 angular.module('starter.controllers', [])
 
-    .controller('AppCtrl', function ($scope, $ionicModal, $timeout, $localStorage,$http,$state) {
+    .controller('AppCtrl', function ($rootScope,$scope, $ionicModal, $timeout, $localStorage,$http,$state) {
         $scope.addNew=function(){
             $state.go('app.newthres');
         }
-
-        if(!$localStorage.subscriber){
+        if($localStorage.subscriber){
+            initsocket();
+        } else {
             $scope.page = {
                 subscriber_name: null
             }
@@ -18,23 +19,24 @@ angular.module('starter.controllers', [])
             });
             $scope.createSubscr = function () {
                 //alert($scope.page.subscriber_name);
-                if(!$scope.page.subscriber_name){
+                if (!$scope.page.subscriber_name) {
                     alert('enter correct name!');
                     return;
                 }
                 $http({
                     method: 'POST',
                     url: "http://localhost:8080/api/subscribers",
-                    data: {name:$scope.page.subscriber_name}
+                    data: {name: $scope.page.subscriber_name}
                 }).then(
-                    function(res) {
-                        $localStorage.subscriber={
-                            name:$scope.page.subscriber_name,
-                            thresholds:[]
+                    function (res) {
+                        $localStorage.subscriber = {
+                            name: $scope.page.subscriber_name,
+                            thresholds: []
                         }
+                        initsocket();
                         $scope.modal.hide();
                     },
-                    function(err) {
+                    function (err) {
                         console.log(err);
                         alert(err.data.message);
                     }
@@ -43,10 +45,34 @@ angular.module('starter.controllers', [])
 
         }
 
+        function initsocket(){
+            var stompClient;
+            var socket = new SockJS('http://localhost:8080/gs-guide-websocket');
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, function (frame) {
+                console.log('socket js Connected: ' + frame);
+                stompClient.subscribe('/topic/'+$localStorage.subscriber.name, function (greeting) {
+                    console.log('receiving socket js messagge ');
+                    console.log(greeting);
+                    $rootScope.$broadcast("temperature",JSON.parse(greeting.body));
+
+                });
+            });
+        }
+
+
     })
 
     .controller('MonitorCtrl',function($scope,$localStorage,$ionicModal){
-        alert('asd');
+        $scope.page={"current_temperature":"N/A","threshold_name":"N/A"};
+        $scope.$on('temperature',function(e,t){
+            $scope.$apply(function(){
+
+                $scope.page.current_temperature=t.current_temperature;
+                $scope.page.threshold_name=t.threshold_name;
+            });
+            //console.log("oh wow "+t);
+        })
 
     })
     .controller('ThresholdsCtrl', function ($scope,$http,$localStorage,$state) {
