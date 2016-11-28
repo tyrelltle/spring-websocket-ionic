@@ -1,8 +1,15 @@
 angular.module('starter.controllers', [])
 
-    .controller('AppCtrl', function ($rootScope,$scope, $ionicModal, $timeout, $localStorage,$http,$state,SERVER_IP, $ionicPopup) {
+    .controller('AppCtrl', function ($rootScope,$scope, $ionicModal, $timeout, $localStorage,$http,$state,SERVER_IP, SocketService) {
         $scope.addNew=function(){
             $state.go('app.newthres');
+          /*  $ionicModal.fromTemplateUrl('templates/newThresholdModal.html', {
+                scope: $scope,
+                controller:'ThresholdCtrl'
+            }).then(function (modal) {
+                $scope.modal = modal;
+                $scope.modal.show();
+            });*/
         }
         function requestNewUser() {
             $scope.page = {
@@ -49,7 +56,7 @@ angular.module('starter.controllers', [])
             }).then(
                 function (res) {
                     if(res.data==true) {
-                        initsocket();
+                        SocketService.initsocket();
                     }else{
                         requestNewUser();
                     }
@@ -59,38 +66,13 @@ angular.module('starter.controllers', [])
                     alert(err.data.message);
                 }
             );
-            initsocket();
+            SocketService.initsocket();
         } else {
             requestNewUser();
 
         }
 
-        function initsocket(){
-            var stompClient;
-            var socket = new SockJS(SERVER_IP+'/gs-guide-websocket');
-            stompClient = Stomp.over(socket);
-            stompClient.heartbeat.outgoing = 5;
-            stompClient.connect({}, function (frame) {
-                console.log('socket js Connected: ' + frame);
-                stompClient.subscribe('/topic/'+$localStorage.subscriber.name, function (greeting) {
-                    console.log('receiving socket js messagge ');
-                    console.log(greeting);
-                    $rootScope.$broadcast("temperature",JSON.parse(greeting.body));
 
-                });
-            },function(){
-                var confirmPopup = $ionicPopup.confirm({
-                    title: 'Server Disconnected',
-                    template: 'Do you want to reconnect?'
-                });
-
-                confirmPopup.then(function(res) {
-                    if(res) {
-                        initsocket();
-                    }
-                });
-            });
-        }
 
 
     })
