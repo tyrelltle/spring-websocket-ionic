@@ -3,13 +3,6 @@ angular.module('starter.controllers', [])
     .controller('AppCtrl', function ($rootScope,$scope, $ionicModal, $timeout, $localStorage,$http,$state,SERVER_IP, SocketService) {
         $scope.addNew=function(){
             $state.go('app.newthres');
-          /*  $ionicModal.fromTemplateUrl('templates/newThresholdModal.html', {
-                scope: $scope,
-                controller:'ThresholdCtrl'
-            }).then(function (modal) {
-                $scope.modal = modal;
-                $scope.modal.show();
-            });*/
         }
         function requestNewUser() {
             $scope.page = {
