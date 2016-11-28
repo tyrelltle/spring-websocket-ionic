@@ -1,6 +1,6 @@
 angular.module('starter.controllers', [])
 
-    .controller('AppCtrl', function ($rootScope,$scope, $ionicModal, $timeout, $localStorage,$http,$state,SERVER_IP) {
+    .controller('AppCtrl', function ($rootScope,$scope, $ionicModal, $timeout, $localStorage,$http,$state,SERVER_IP, $ionicPopup) {
         $scope.addNew=function(){
             $state.go('app.newthres');
         }
@@ -69,6 +69,7 @@ angular.module('starter.controllers', [])
             var stompClient;
             var socket = new SockJS(SERVER_IP+'/gs-guide-websocket');
             stompClient = Stomp.over(socket);
+            stompClient.heartbeat.outgoing = 5;
             stompClient.connect({}, function (frame) {
                 console.log('socket js Connected: ' + frame);
                 stompClient.subscribe('/topic/'+$localStorage.subscriber.name, function (greeting) {
@@ -76,6 +77,17 @@ angular.module('starter.controllers', [])
                     console.log(greeting);
                     $rootScope.$broadcast("temperature",JSON.parse(greeting.body));
 
+                });
+            },function(){
+                var confirmPopup = $ionicPopup.confirm({
+                    title: 'Server Disconnected',
+                    template: 'Do you want to reconnect?'
+                });
+
+                confirmPopup.then(function(res) {
+                    if(res) {
+                        initsocket();
+                    }
                 });
             });
         }
@@ -85,14 +97,25 @@ angular.module('starter.controllers', [])
 
     .controller('MonitorCtrl',function($scope,$localStorage,$ionicModal){
         $scope.page={"current_temperature":"N/A","threshold_name":"N/A"};
+        $scope.page.hit_thres_list=[];
         $scope.$on('temperature',function(e,t){
             $scope.$apply(function(){
 
                 $scope.page.current_temperature=t.current_temperature;
-                $scope.page.threshold_name=t.threshold_name;
+                //$scope.page.threshold_name=t.threshold_name;
+                if(['$no_reached$','N/A'].indexOf(t.threshold_name)<0){
+                    $scope.page.hit_thres_list.unshift({thres:t.threshold_name,time:new Date()});
+                }
             });
             //console.log("oh wow "+t);
         })
+
+        setInterval(function(){
+            if($scope.page.hit_thres_list.length>5){
+                while($scope.page.hit_thres_list.length>5)
+                    $scope.page.hit_thres_list.splice($scope.page.hit_thres_list.length-1,1);
+            }
+        },10000);
 
     })
     .controller('ThresholdsCtrl', function ($scope,$http,$localStorage,$state,SERVER_IP) {

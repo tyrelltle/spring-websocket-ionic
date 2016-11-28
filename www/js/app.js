@@ -55,7 +55,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ngStorage'])
             })
 
             .state('app.threshold', {
-                url: '/thresholds',
+                url: '/thresholds/:thresname',
                 params: {thres: null},
                 views: {
                     'menuContent': {
