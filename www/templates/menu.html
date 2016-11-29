@@ -9,7 +9,7 @@
         </button>
       </ion-nav-buttons>
       <ion-nav-buttons side="right">
-        <button class="button button-icon button-clear ion-plus" ng-click="addNew()">
+        <button class="button button-icon button-clear ion-plus" ng-if="!hideplusbtn" ng-click="addNew()">
         </button>
       </ion-nav-buttons>
     </ion-nav-bar>
@@ -19,15 +19,12 @@
   <ion-side-menu side="left">
 
     <ion-content>
-      <ion-list>
+      <ion-list style="margin-top: 25%;">
         <ion-item menu-close href="#/app/thresholds">
           Thresholds
         </ion-item>
         <ion-item menu-close href="#/app/monitor">
           Monitoring
-        </ion-item>
-        <ion-item menu-close href="#/app/monitor" ng-disabled="page.loggedin">
-          Logout
         </ion-item>
       </ion-list>
     </ion-content>

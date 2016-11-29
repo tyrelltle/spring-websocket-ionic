@@ -4,6 +4,10 @@ angular.module('starter.controllers', [])
         $scope.addNew=function(){
             $state.go('app.newthres');
         }
+
+        $rootScope.$on('$stateChangeStart', function(next, current) {
+            $scope.hideplusbtn=(current.name!='app.thresholds');
+        });
         function requestNewUser() {
             $scope.page = {
                 subscriber_name: null
@@ -31,7 +35,7 @@ angular.module('starter.controllers', [])
                             name: $scope.page.subscriber_name,
                             thresholds: []
                         }
-                        initsocket();
+                        SocketService.initsocket();
                         $scope.modal.hide();
                     },
                     function (err) {
@@ -70,17 +74,21 @@ angular.module('starter.controllers', [])
 
     })
 
-    .controller('MonitorCtrl',function($scope,$localStorage,$ionicModal){
+    .controller('MonitorCtrl',function($scope,$localStorage,$ionicModal,$rootScope){
         $scope.page={"current_temperature":"N/A","threshold_name":"N/A"};
         $scope.page.hit_thres_list=[];
-        $scope.$on('temperature',function(e,t){
+        $scope.$on('threshold_reached',function(e,t){
             $scope.$apply(function(){
-
-                $scope.page.current_temperature=t.current_temperature;
-                //$scope.page.threshold_name=t.threshold_name;
                 if(['$no_reached$','N/A'].indexOf(t.threshold_name)<0){
                     $scope.page.hit_thres_list.unshift({thres:t.threshold_name,time:new Date()});
                 }
+            });
+            //console.log("oh wow "+t);
+        });
+
+        $scope.$on('temperature',function(e,t){
+            $scope.$apply(function(){
+                $scope.page.current_temperature=t;
             });
             //console.log("oh wow "+t);
         })
@@ -93,7 +101,7 @@ angular.module('starter.controllers', [])
         },10000);
 
     })
-    .controller('ThresholdsCtrl', function ($scope,$http,$localStorage,$state,SERVER_IP) {
+    .controller('ThresholdsCtrl', function ($scope,$http,$localStorage,$state,SERVER_IP,$rootScope) {
         $scope.$parent.showadd=true;
         $scope.thresholds = [];
         $http({
@@ -114,7 +122,7 @@ angular.module('starter.controllers', [])
         }
     })
 
-    .controller('ThresholdCtrl', function ($scope, $stateParams) {
+    .controller('ThresholdCtrl', function ($scope, $stateParams,$rootScope) {
         $scope.page={view:true};
         console.log($stateParams.thres)
         $scope.thres=$stateParams.thres;

@@ -17,9 +17,13 @@ angular.module('starter')
                 stompClient.subscribe('/topic/'+$localStorage.subscriber.name, function (greeting) {
                     console.log('receiving socket js messagge ');
                     console.log(greeting);
-                    $rootScope.$broadcast("temperature",JSON.parse(greeting.body));
+                    $rootScope.$broadcast("threshold_reached",JSON.parse(greeting.body));
 
                 },{ id: $localStorage.subscriber.name });
+
+                stompClient.subscribe('/topic/temperature', function (greeting) {
+                    $rootScope.$broadcast("temperature",greeting.body);
+                });
 
                 var windowElement = angular.element($window);
                 windowElement.on('beforeunload', function (event) {
@@ -39,7 +43,7 @@ angular.module('starter')
 
                 confirmPopup.then(function(res) {
                     if(res) {
-                        initsocket();
+                        self.initsocket();
                     }
                 });
             });
