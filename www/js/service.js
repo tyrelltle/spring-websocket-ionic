@@ -11,6 +11,7 @@ angular.module('starter')
             var socket = new SockJS(SERVER_IP+'/gs-guide-websocket');
             stompClient = Stomp.over(socket);
             stompClient.heartbeat.outgoing = 5;
+            self.stompClient=stompClient;
             stompClient.connect({}, function (frame) {
                 self.everConnected=true;
                 console.log('socket js Connected: ' + frame);
@@ -36,6 +37,10 @@ angular.module('starter')
 
             },function(){
                 self.everConnected=false;
+                if(self.intent_disconnect){
+                    self.intent_disconnect=false;
+                    return;
+                }
                 var confirmPopup = $ionicPopup.confirm({
                     title: 'Server Disconnected',
                     template: 'Do you want to reconnect?'
@@ -44,8 +49,19 @@ angular.module('starter')
                 confirmPopup.then(function(res) {
                     if(res) {
                         self.initsocket();
+                    }else{
+                       // self.closesocket();
+                        self.intent_disconnect=true;
                     }
                 });
+            });
+        }
+
+        this.closesocket=function(){
+            self.intent_disconnect=true;
+            self.everConnected=false;
+            self.stompClient.disconnect(function() {
+                console.log('disconnected from websocket');
             });
         }
     });

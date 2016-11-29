@@ -4,7 +4,7 @@ angular.module('starter.controllers', [])
         $scope.addNew=function(){
             $state.go('app.newthres');
         }
-
+        $scope.hideplusbtn=true;
         $rootScope.$on('$stateChangeStart', function(next, current) {
             $scope.hideplusbtn=(current.name!='app.thresholds');
         });
@@ -66,10 +66,24 @@ angular.module('starter.controllers', [])
             SocketService.initsocket();
         } else {
             requestNewUser();
-
         }
 
+        $scope.logout=function(){
+            $http({
+                method: 'DELETE',
+                url: SERVER_IP+"/api/subscribers/"+$localStorage.subscriber.name
+            }).then(
+                function (res) {
 
+                },
+                function (err) {
+                    console.log(err);
+                }
+            );
+            delete $localStorage.subscriber;
+            SocketService.closesocket();
+            requestNewUser();
+        }
 
 
     })
